@@ -1,31 +1,37 @@
 package ch.swisscom.beacondistanceestimator;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AverageDistanceEstimator extends DistanceEstimator implements MovementRecognitionAnalyser.MovementRecognitionListener {
 
-    private List<Double> mListRSSI;
+    private ArrayList<Double> mListRSSI;
+    private Context mContext;
+    private final static int MAX_ELEMENTS_IN_LIST = 10;
+    private int mLastActivityType;
 
-    AverageDistanceEstimator(Context context, double calibrationVal) {
+    public AverageDistanceEstimator(Context context, double calibrationVal) {
         super(calibrationVal);
         mListRSSI = new ArrayList<>();
+        mContext = context;
         new MovementRecognitionAnalyser(context, this);
     }
 
     public void addRSSI(double newMeasure) {
-        if (mListRSSI.size() >= 10) {
+        if (mListRSSI.size() >= MAX_ELEMENTS_IN_LIST) {
             mListRSSI.remove(0);
         }
         mListRSSI.add(newMeasure);
     }
 
     public void cutLastMeasures(int nbMeasure) {
-
+        if (mListRSSI.size() >= MAX_ELEMENTS_IN_LIST) {
+            mListRSSI.subList(0, nbMeasure).clear();
+        }
     }
 
     public double getAveragedDistance() {
@@ -40,25 +46,31 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
 
     @Override
     public void onMoving(int movementType) {
+        Toast.makeText(mContext, "onMoving: " + Constants.getActivityString(mContext, movementType),
+                Toast.LENGTH_SHORT).show();
+
         switch(movementType) {
+
+            case DetectedActivity.ON_FOOT: {
+                cutLastMeasures(MAX_ELEMENTS_IN_LIST/2);
+            }
+            break;
+
             case DetectedActivity.RUNNING: {
-                cutLastMeasures(9);
-                //TODO Cut the last 9 averagedMeasurements
+                cutLastMeasures(MAX_ELEMENTS_IN_LIST-1);
 
             }
             break;
             case DetectedActivity.WALKING: {
-                cutLastMeasures(5);
-                //TODO Cut the last 5 averagedMeasurements
+                cutLastMeasures(MAX_ELEMENTS_IN_LIST/2);
             }
             break;
             case DetectedActivity.STILL: {
-                //TODO Do nothing
+                //Do nothing
             }
             break;
             default: {
-                //TODO ?
-
+                //Do nothing
             }
             break;
         }
