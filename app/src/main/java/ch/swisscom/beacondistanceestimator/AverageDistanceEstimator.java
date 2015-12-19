@@ -57,7 +57,7 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
             break;
 
             case DetectedActivity.RUNNING: {
-                cutLastMeasures(MAX_ELEMENTS_IN_LIST-1);
+                cutLastMeasures(MAX_ELEMENTS_IN_LIST/5);
 
             }
             break;
