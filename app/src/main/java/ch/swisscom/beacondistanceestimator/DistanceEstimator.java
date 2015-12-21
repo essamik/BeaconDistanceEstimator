@@ -26,7 +26,8 @@ public class DistanceEstimator {
     }
 
     public static double calculateDistance(double rssi, double calibrationValue) {
-        double correctedRSSI = Math.abs(rssi) * (sCalibrationToCorrection.get(calibrationValue));
+        //double correctedRSSI = Math.abs(rssi) * (sCalibrationToCorrection.get(calibrationValue));
+        double correctedRSSI = rssi * (sCalibrationToCorrection.get(calibrationValue));
 
        double distance = calculateForP31(correctedRSSI);
 
@@ -36,9 +37,12 @@ public class DistanceEstimator {
     }
 
     private static double calculateForP31(double x) {
-        return 2.967470e-02 -1.411623e-02*x - 3.636727e-03*Math.pow(x,2)
-                - 1.792129e-04*Math.pow(x,3) - 3.269059e-06*Math.pow(x,4) -
-                2.056007e-08*Math.pow(x,5);
+        return 2.967470e-02
+                - 1.411623e-02*x
+                - 3.636727e-03*Math.pow(x,2)
+                - 1.792129e-04*Math.pow(x,3)
+                - 3.269059e-06*Math.pow(x,4)
+                - 2.056007e-08*Math.pow(x,5);
     }
 
     private static double calculateForAltstetten(double x) {
