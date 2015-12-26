@@ -25,6 +25,7 @@ public class MovementRecognitionAnalyser implements GoogleApiClient.ConnectionCa
 
     private Context mContext;
     private MovementRecognitionListener mListener;
+
     /**
      * A receiver for DetectedActivity objects broadcast by the
      * {@code ActivityDetectionIntentService}.

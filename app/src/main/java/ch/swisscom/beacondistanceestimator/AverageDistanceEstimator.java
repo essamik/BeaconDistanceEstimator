@@ -10,6 +10,7 @@ import android.util.Log;
 import com.google.android.gms.location.DetectedActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class AverageDistanceEstimator extends DistanceEstimator implements MovementRecognitionAnalyser.MovementRecognitionListener, SensorEventListener {
 
@@ -17,7 +18,7 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
 
     private ArrayList<Double> mListRSSI;
     private Context mContext;
-    private final static int MAX_ELEMENTS_IN_LIST = 10;
+    private final static int MAX_ELEMENTS_IN_LIST = 20;
     private final static int MIN_ELEMENTS_IN_LIST = 2;
 
     private SensorManager mSensorManager;
@@ -38,7 +39,7 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            if (mListRSSI.size() > MIN_ELEMENTS_IN_LIST) cutLastMeasures(MAX_ELEMENTS_IN_LIST/2);
+            if (mListRSSI.size() > MIN_ELEMENTS_IN_LIST) cutLastMeasures(mListRSSI.size()/2);
         }
         Log.d(TAG, "Step detected, ");
     }
@@ -61,14 +62,29 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
         }
     }
 
+    public void clearRSSIList() {
+        mListRSSI = new ArrayList<>();
+    }
+
     public double getAveragedDistance() {
         double sum = 0;
         for (Double measure : mListRSSI) {
             sum += measure;
         }
 
-        double avgRSSI = (sum/ mListRSSI.size());
+        //Discard the minimum and the maximum (top 10% and bottom 10% only when the buffer is full)
+        boolean discardMinMax = (mListRSSI.size() == MAX_ELEMENTS_IN_LIST);
+        if (discardMinMax)  {
+            sum -= Collections.max(mListRSSI);
+            sum -= Collections.min(mListRSSI);
+        }
+
+        double avgRSSI = (sum/ (discardMinMax ? mListRSSI.size()-2 : mListRSSI.size()));
         return super.calculateDistance(avgRSSI, mCalibrationVal);
+    }
+
+    public int getSampleSize() {
+        return mListRSSI.size();
     }
 
     @Override
