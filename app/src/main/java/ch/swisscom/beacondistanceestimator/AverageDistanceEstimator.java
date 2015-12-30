@@ -7,12 +7,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import com.google.android.gms.location.DetectedActivity;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class AverageDistanceEstimator extends DistanceEstimator implements MovementRecognitionAnalyser.MovementRecognitionListener, SensorEventListener {
+public class AverageDistanceEstimator extends DistanceEstimator implements SensorEventListener {
 
     private final String TAG = AverageDistanceEstimator.class.getSimpleName();
 
@@ -28,7 +26,6 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
         super(calibrationVal);
         mListRSSI = new ArrayList<>();
         mContext = context;
-        //new MovementRecognitionAnalyser(context, this);
 
         //Init sensor manager to listen to movements
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
@@ -85,37 +82,5 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Movem
 
     public int getSampleSize() {
         return mListRSSI.size();
-    }
-
-    @Override
-    public void onMoving(int movementType) {
-
-
-        switch(movementType) {
-
-            case DetectedActivity.ON_FOOT: {
-                cutLastMeasures(MAX_ELEMENTS_IN_LIST/2);
-            }
-            break;
-
-            case DetectedActivity.RUNNING: {
-                cutLastMeasures(MAX_ELEMENTS_IN_LIST/5);
-
-            }
-            break;
-            case DetectedActivity.WALKING: {
-                cutLastMeasures(MAX_ELEMENTS_IN_LIST/2);
-            }
-            break;
-            case DetectedActivity.STILL: {
-                //Do nothing
-            }
-            break;
-            default: {
-                //Do nothing
-            }
-            break;
-        }
-        //Log.d(TAG, "onMoving: " + Constants.getActivityString(mContext, movementType) + " Length : " + mListRSSI.size());
     }
 }
