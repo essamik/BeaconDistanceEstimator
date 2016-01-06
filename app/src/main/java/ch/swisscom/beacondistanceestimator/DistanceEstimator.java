@@ -5,31 +5,29 @@ import java.util.Map;
 
 public class DistanceEstimator {
 
-    protected double mCalibrationVal;
-
-    private static Map<Double, Double> sCalibrationToCorrection;
+    private static Map<Double, Double> sConfigurationCorrection;
     static {
-        sCalibrationToCorrection = new HashMap();
-        sCalibrationToCorrection.put(-115d, 0.6695652173913);
-        sCalibrationToCorrection.put(-84d, 0.91666666666667);
-        sCalibrationToCorrection.put(-81d, 0.95061728395062);
-        sCalibrationToCorrection.put(-77d, 1d);
-        sCalibrationToCorrection.put(-72d, 1.06944444444444);
-        sCalibrationToCorrection.put(-69d, 1.11594202898551);
-        sCalibrationToCorrection.put(-65d, 1.18461538461538);
-        sCalibrationToCorrection.put(-59d, 1.30508474576271);
+        sConfigurationCorrection = new HashMap();
+        sConfigurationCorrection.put(-115d, 38d);
+        sConfigurationCorrection.put(-84d, 7d);
+        sConfigurationCorrection.put(-81d, 4d);
+        sConfigurationCorrection.put(-77d, 0d);
+        sConfigurationCorrection.put(-72d, -5d);
+        sConfigurationCorrection.put(-69d, -8d);
+        sConfigurationCorrection.put(-65d, -12d);
+        sConfigurationCorrection.put(-59d, -18d);
     }
 
-
-    DistanceEstimator(double calibrationVal) {
-        mCalibrationVal = calibrationVal;
-    }
-
-    public static double calculateDistance(double rssi, double calibrationValue) {
-
-
-        double correctedRSSI = rssi * (sCalibrationToCorrection.get(calibrationValue));
-        double distance = calculateDistance(correctedRSSI);
+    /**
+     * Compute an estimation of the distance based on the RSSI and the calibrated value for 1 meter of the beacon
+     * @param  rssi The signal strength
+     * @param calibrationValue The calibrated RSSI at a distance of 1 meter
+     * @param configCorrection Indicate if a correction of the RSSI is needed due to a specific transmission power
+     * @return The distance between the smartphone and the iBeacon in meters
+     */
+    public static double calculateDistance(double rssi, double calibrationValue, boolean configCorrection) {
+        if (configCorrection) rssi = rssi + (sConfigurationCorrection.get(calibrationValue));
+        double distance = calculateDistance(rssi);
 
         //Set minimum possible distance
         if (distance <= 0) distance = 0.01;
@@ -42,11 +40,11 @@ public class DistanceEstimator {
      * @return The distance between the device and the beacon
      */
     private static double calculateDistance(double x) {
-        return -2.523223e+02
-                -1.487040e+01 * x
-                -3.204729e-01 * Math.pow(x,2)
-                -2.968497e-03 * Math.pow(x,3)
-                -9.817707e-06 * Math.pow(x,4);
+         return -6.492139e+01
+                -3.883648e+00 * x
+                -8.258342e-02 * Math.pow(x,2)
+                -7.131272e-04 * Math.pow(x,3)
+                -1.913343e-06 * Math.pow(x,4);
     }
 
     /** Other models */
@@ -60,7 +58,4 @@ public class DistanceEstimator {
         double e = 2.085460e-07 * Math.pow(x,4);
         return a+b+c+d+e;
     }
-
-
-
 }
