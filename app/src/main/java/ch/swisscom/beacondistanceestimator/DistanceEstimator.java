@@ -49,6 +49,12 @@ public class DistanceEstimator {
 
     /** Other models */
 
+    private static double calculateDistanceFromCeiling(double x) {
+         return -6.188210e+02
+                -2.440569e+01 * x
+                -3.226527e-01 * Math.pow(x,2)
+                -1.433933e-03 * Math.pow(x,3);
+    }
     private static double calculateDistanceForSmallAppartment(double x) {
         x = Math.abs(x);
         double a = -1.809821e-01;

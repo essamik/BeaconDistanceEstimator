@@ -14,17 +14,18 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Senso
 
     private final String TAG = AverageDistanceEstimator.class.getSimpleName();
 
+    private Context mContext;
+
     private ArrayList<Double> mListRSSI;
     private double mCalibrationVal;
     private boolean mConfigCorrection;
 
-    private Context mContext;
-
-    private final static int MAX_ELEMENTS_IN_LIST = 20;
-    private final static int MIN_ELEMENTS_IN_LIST = 2;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
+
+    private final static int MAX_ELEMENTS_IN_LIST = 20;
+    private final static int MIN_ELEMENTS_IN_LIST = 2;
 
     /**
      * Initialize a distance estimator working on a running average
@@ -92,7 +93,7 @@ public class AverageDistanceEstimator extends DistanceEstimator implements Senso
      * Calculate the distance based on the RSSI sample actually in memory.
      * @return The distance in meter between the smartphone and the iBeacon.
      */
-    public double getAveragedDistance() {
+    public double calculateAveragedDistance() {
         double sum = 0;
         for (Double measure : mListRSSI) {
             sum += measure;
